@@ -10,13 +10,10 @@ app.use((req, res, next) => {
   req.user = {
     _id: '62b745bef85b172349404ea9',
   };
-
   next();
 });
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
-  useNewUrlParser: true,
-});
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 app.use('/', require('./routes/cards'));
 app.use('/', require('./routes/users'));
