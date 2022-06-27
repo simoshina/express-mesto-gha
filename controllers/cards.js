@@ -1,5 +1,5 @@
 const BadRequestError = require('../errors/BadRequestError');
-const NotFoundError = require('../errors/notFoundError');
+const NotFoundError = require('../errors/NotFoundError');
 const Card = require('../models/card');
 
 module.exports.getCards = (req, res, next) => {
