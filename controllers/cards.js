@@ -40,12 +40,15 @@ module.exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (!card) {
+        return next(new NotFoundError('Карточка с указанным id не найдена.'))
+      }
+      res.send(card)
+    })
     .catch((err) => {
-      if (err.name == "ValidationError") {
-        return next(new BadRequestError('Переданы некорректные данные для постановки/снятии лайка.'))
-      } else if (err.name == "CastError") {
-        return next(new NotFoundError('Передан несуществующий id карточки.'))
+      if (err.name == "CastError") {
+        return next(new BadRequestError('Передан некорретный id карточки.'))
       }
       next(err)
     }
