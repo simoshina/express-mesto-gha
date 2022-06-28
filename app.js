@@ -24,4 +24,8 @@ app.use((err, req, res, next) => {
   res.status(statusCode).send({ message });
 })
 
+app.use('*', (req, res) => {
+  res.status(404).send('Такой страницы не существует.');
+});
+
 app.listen(PORT);
