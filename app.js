@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const NotFoundError = require('./errors/notFoundError');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -24,8 +25,8 @@ app.use((err, req, res, next) => {
   res.status(statusCode).send({ message });
 })
 
-app.use('*', (req, res) => {
-  res.status(404).send('Такой страницы не существует.');
+app.use('*', (err, req, res, next) => {
+  throw new NotFoundError('Такой страницы не существует.')
 });
 
 app.listen(PORT);
