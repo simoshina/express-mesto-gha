@@ -26,7 +26,10 @@ app.use((err, req, res, next) => {
 })
 
 app.use('*', (err, req, res, next) => {
-  throw new NotFoundError('Такой страницы не существует.')
+  if (err.statusCode === 404) {
+    return next(new NotFoundError('Такой страницы не существует.'))
+  }
+  next(err)
 });
 
 app.listen(PORT);
