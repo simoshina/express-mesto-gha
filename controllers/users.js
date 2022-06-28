@@ -10,7 +10,12 @@ module.exports.findUsers = (req, res, next) => {
 
 module.exports.findUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .then((users) => res.send(users))
+    .then((user) => {
+      if (!user) {
+        return next(new BadRequestError('Передан некорректный id.'))
+      }
+      res.send(user)
+    })
     .catch((err) => {
       if (err.name == "CastError") {
         return next(new NotFoundError('Пользователь по указанному id не найден.'))
