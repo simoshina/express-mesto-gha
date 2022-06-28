@@ -19,17 +19,17 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 app.use('/', require('./routes/cards'));
 app.use('/', require('./routes/users'));
 
-app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  const message = statusCode === 500 ? 'На сервере произошла ошибка' : err.message;
-  res.status(statusCode).send({ message });
-})
-
 app.use('*', (err, req, res, next) => {
   if (err.statusCode === 404) {
     return next(new NotFoundError('Такой страницы не существует.'))
   }
   next(err)
 });
+
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = statusCode === 500 ? 'На сервере произошла ошибка' : err.message;
+  res.status(statusCode).send({ message });
+})
 
 app.listen(PORT);
