@@ -3,11 +3,7 @@
     "browser": true,
     "es2021": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "airbnb-base"
-  ],
+  "extends": "airbnb-base",
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -20,12 +16,8 @@
   ],
   "rules": {
     "no-underscore-dangle": [
-      "error", {
-        "allow": ["_id"]
-      }],
-    "no-console": [
-      "error", {
-        "allow": ["log"]
+      "off", {
+        "allow": ["id"]
       }]
   }
 }
