@@ -3,31 +3,45 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
+const { celebrate, Joi, errors } = require('celebrate');
+const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
+const { login, createUser } = require('./controllers/users');
+const { handleError } = require('./middlewares/errors');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(helmet());
-
-app.use((req, res, next) => {
-  req.user = {
-    _id: '62b745bef85b172349404ea9',
-  };
-  next();
-});
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
-app.use('/', require('./routes/cards'));
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string(),
+  }),
+}), createUser);
+
+app.use(auth);
+
 app.use('/', require('./routes/users'));
+app.use('/', require('./routes/cards'));
 
 app.use('*', (req, res, next) => next(new NotFoundError('Такой страницы не существует.')));
 
-app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  const message = statusCode === 500 ? 'На сервере произошла ошибка' : err.message;
-  res.status(statusCode).send({ message });
-});
+app.use(errors());
+app.use(handleError);
 
 app.listen(PORT);

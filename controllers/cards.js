@@ -1,5 +1,6 @@
 /* eslint-disable consistent-return */
 const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
 const NotFoundError = require('../errors/NotFoundError');
 const Card = require('../models/card');
 
@@ -22,9 +23,14 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
     .orFail(new NotFoundError('Карточка с указанным id не найдена.'))
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (card.owner.toString() === req.user._id) {
+        return Card.findByIdAndRemove(req.params.cardId);
+      }
+      return next(new ForbiddenError('Нельзя удалять чужую карточку.'));
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
         return next(new BadRequestError('Передан некорретный id карточки.'));
