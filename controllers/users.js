@@ -11,7 +11,7 @@ const SECRET_KEY = '20b3c1dc4cc747685c0e2759c9d70041bd8a0843b9f6a1c9b1c68dca224d
 module.exports.findUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 module.exports.findUser = (req, res, next) => {
@@ -61,9 +61,7 @@ module.exports.login = (req, res, next) => {
         httpOnly: true,
       }).send({ token });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports.getUser = (req, res, next) => {
