@@ -7,7 +7,7 @@ const Card = require('../models/card');
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((users) => res.send(users))
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 module.exports.createCard = (req, res, next) => {
