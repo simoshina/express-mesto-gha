@@ -1,14 +1,17 @@
 /* eslint-disable no-unused-vars */
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const { celebrate, Joi, errors } = require('celebrate');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
 const { login, createUser } = require('./controllers/users');
 const { handleError } = require('./middlewares/errors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -17,6 +20,24 @@ app.use(cookieParser());
 app.use(helmet());
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
+
+app.use(requestLogger);
+
+const options = {
+  origin: [
+    'http://localhost:3000',
+    'https://simoshina.students.nomoredomains.xyz',
+  ],
+  credentials: true,
+};
+
+app.use('*', cors(options));
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -39,6 +60,8 @@ app.use(auth);
 
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
+
+app.use(errorLogger);
 
 app.use('*', (req, res, next) => next(new NotFoundError('Такой страницы не существует.')));
 
